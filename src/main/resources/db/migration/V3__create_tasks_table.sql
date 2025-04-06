@@ -3,6 +3,6 @@ CREATE TABLE tasks (
     task_id SERIAL PRIMARY KEY,
     name VARCHAR(255),
     completed BOOLEAN,
-    createdAt TIMESTAMP,
-    updatedAt TIMESTAMP
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP
 );

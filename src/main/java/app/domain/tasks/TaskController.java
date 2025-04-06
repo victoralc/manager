@@ -1,9 +1,14 @@
 package app.domain.tasks;
 
+import io.quarkus.qute.Template;
+import io.quarkus.qute.TemplateInstance;
+import io.smallrye.common.annotation.Blocking;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -11,56 +16,61 @@ import java.util.Optional;
 public class TaskController {
 
     @Inject
+    Template tasks;
+
+    @Inject
     TaskRepository taskRepository;
 
     @GET
-    public String getTasks() {
-        List<Task> tasks = taskRepository.findAll().list();
-        return "tasks";
-    }
-
-    @PUT
-    @Path("/{taskId}")
-    public String update(@PathParam("taskId") Long taskId, String taskName) {
-        Optional<Task> optTask = taskRepository.findByIdOptional(taskId);
-        if (optTask.isEmpty()) {
-            return "tasks";
-        }
-        Task task = optTask.get();
-        task.setName(taskName);
-        taskRepository.persist(task);
-        return "tasks";
+    @Blocking
+    public TemplateInstance renderTasksTemplate() {
+        return tasks.data("tasks", taskRepository.listAll());
     }
 
     @PUT
     @Path("/{taskId}/status")
-    public String update(@PathParam("taskId") Long taskId, Map<String, Boolean> body) {
+    @Transactional
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response update(@PathParam("taskId") Long taskId, Map<String, Boolean> body) {
         Optional<Task> optTask = taskRepository.findByIdOptional(taskId);
         if (optTask.isEmpty()) {
-            return "tasks";
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(Map.of("error", "invalid task id"))
+                    .build();
         }
+
+        boolean taskCompleted = body.get("completed");
+
         Task task = optTask.get();
-
-        boolean shouldUpdate = body.get("completed");
-        task.setCompleted(shouldUpdate);
+        task.setCompleted(taskCompleted);
         taskRepository.persist(task);
-        return "tasks";
-    }
 
-    @DELETE
-    @Path("/{taskId}")
-    public String deleteTask(@PathParam("taskId") Long taskId) {
-        taskRepository.deleteById(taskId);
-        return "redirect:/tasks";
+        return Response.ok(Map.of("success", "Task updated")).build();
     }
 
     @POST
-    public String create(@QueryParam("taskName") String taskName) {
+    @Blocking
+    @Transactional
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public TemplateInstance create(@FormParam("taskName") String taskName) {
         if (taskName == null || taskName.trim().isEmpty()) {
-            return "redirect:/tasks";
+            return tasks
+                    .data("error", "Invalid task name. Must not be empty")
+                    .data("tasks", taskRepository.listAll());
         }
         Task task = new Task(taskName);
         taskRepository.persist(task);
-        return "redirect:/tasks";
+        return tasks.data("tasks", taskRepository.listAll());
+    }
+
+    @POST
+    @Blocking
+    @Transactional
+    @Path("/delete/{id}")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public TemplateInstance delete(@PathParam("id") Long id) {
+        taskRepository.deleteById(id);
+        return tasks.data("tasks", taskRepository.listAll());
     }
 }

@@ -15,7 +15,11 @@ public class Task extends PanacheEntityBase {
     private Long id;
     private String name;
     private boolean completed;
+
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     public Task(){}

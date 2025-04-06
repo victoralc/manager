@@ -15,7 +15,7 @@ function completeTask(checkbox) {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            completed: checkbox.checked, // Send only the updated status
+            completed: checkbox.checked,
         }),
     })
     .then(response => {

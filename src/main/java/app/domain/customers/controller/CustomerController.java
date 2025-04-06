@@ -14,7 +14,7 @@ import jakarta.ws.rs.Path;
 import java.util.List;
 
 @Path("/customers")
-public class CustomerResource {
+public class CustomerController {
 
     @Inject
     Template customers;
