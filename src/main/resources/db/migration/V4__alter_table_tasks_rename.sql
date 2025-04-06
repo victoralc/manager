@@ -1,0 +1,11 @@
+ALTER TABLE tasks
+RENAME COLUMN createdAt TO created_at;
+
+ALTER TABLE tasks
+RENAME COLUMN updatedAt TO updated_at;
+
+ALTER TABLE tasks
+ALTER COLUMN created_at TYPE TIMESTAMP;
+
+ALTER TABLE tasks
+ALTER COLUMN updated_at TYPE TIMESTAMP;

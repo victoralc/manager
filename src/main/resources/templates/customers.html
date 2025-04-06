@@ -1,0 +1,62 @@
+<!doctype html>
+<html data-bs-theme="auto" lang="en">
+{#include fragments/_head /}
+
+<body>
+{#include fragments/_svg /}
+{#include fragments/_header /}
+
+<div class="container-fluid">
+    <div class="row">
+        {#include fragments/_sidenav /}
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Customers</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <button class="btn btn-sm btn-outline-secondary" type="button">Share</button>
+                        <button class="btn btn-sm btn-outline-secondary" type="button">Export</button>
+                    </div>
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-1"
+                            type="button">
+                        <svg class="bi">
+                            <use xlink:href="#calendar3"/>
+                        </svg>
+                        This week
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th scope="col">Customer Id</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Address</th>
+                        <th scope="col">Phone</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {#for customer in customers}
+                        <tr>
+                            <td>{customer.id}</td>
+                            <td>{customer.name}</td>
+                            <td>{customer.email}</td>
+                            <td>{customer.address}</td>
+                            <td>{customer.phone}</td>
+                        </tr>
+                    {/for}
+                    </tbody>
+                </table>
+            </div>
+
+        </main>
+    </div>
+</div>
+<script crossorigin="anonymous"
+        integrity="sha384-eI7PSr3L1XLISH8JdDII5YN/njoSsxfbrkCTnJrzXt+ENP5MOVBxD+l6sEG4zoLp"
+        src="https://cdn.jsdelivr.net/npm/chart.js@4.3.2/dist/chart.umd.js"></script>
+</body>
+</html>
