@@ -4,6 +4,7 @@ CREATE TABLE users (
     username VARCHAR(255) UNIQUE,
     password VARCHAR(255),
     enabled BOOLEAN,
+    role VARCHAR(155),
     created_at TIMESTAMP,
     updated_at TIMESTAMP
 );

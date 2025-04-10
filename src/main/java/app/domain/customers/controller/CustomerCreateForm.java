@@ -1,8 +1,10 @@
 package app.domain.customers.controller;
 
+import jakarta.ws.rs.FormParam;
+
 public record CustomerCreateForm(
-        String name,
-        String email,
-        String address,
-        String phone) {
+        @FormParam("name") String name,
+        @FormParam("email") String email,
+        @FormParam("address") String address,
+        @FormParam("phone") String phone) {
 }

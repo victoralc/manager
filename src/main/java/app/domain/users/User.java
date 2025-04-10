@@ -13,8 +13,8 @@ public class User extends PanacheEntityBase {
     @Column(name = "user_id")
     private Long id;
 
-    @Column(name = "email")
-    private String email;
+    @Column(name = "username")
+    private String username;
 
     @Column(name = "password")
     private String password;
@@ -24,8 +24,8 @@ public class User extends PanacheEntityBase {
 
     public User(){}
 
-    public User(String email, String password, String role) {
-        this.email = email;
+    public User(String username, String password, String role) {
+        this.username = username;
         this.password = password;
         this.role = role;
     }
@@ -38,12 +38,12 @@ public class User extends PanacheEntityBase {
         this.id = id;
     }
 
-    public String getEmail() {
-        return email;
+    public String getUsername() {
+        return username;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getPassword() {
@@ -66,11 +66,11 @@ public class User extends PanacheEntityBase {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return Objects.equals(id, user.id) && Objects.equals(email, user.email);
+        return Objects.equals(id, user.id) && Objects.equals(username, user.username);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, email);
+        return Objects.hash(id, username);
     }
 }
