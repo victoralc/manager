@@ -23,8 +23,10 @@ import java.util.stream.Collectors;
 public class EmployeeResource {
     @Inject
     Validator validator;
+
     @Inject
     private EmployeeRepository employeeRepository;
+
     @Inject
     private UserRepository userRepository;
 
@@ -47,9 +49,8 @@ public class EmployeeResource {
     public TemplateInstance createEmployee(CreateEmployeeForm form) {
         var violations = validator.validate(form);
         if (!violations.isEmpty()) {
-            Map<String, String> errors = violations.stream()
-                    .collect(Collectors
-                            .toMap(v -> v.getPropertyPath().toString(),
+            var errors = violations.stream()
+                    .collect(Collectors.toMap(v -> v.getPropertyPath().toString(),
                                     ConstraintViolation::getMessage));
             return Templates.create().data("errors", errors).data("form", form);
         }
@@ -74,7 +75,6 @@ public class EmployeeResource {
     @CheckedTemplate(requireTypeSafeExpressions = false)
     public static class Templates {
         public static native TemplateInstance list(List<Employee> employees);
-
         public static native TemplateInstance create();
     }
 

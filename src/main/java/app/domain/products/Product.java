@@ -4,6 +4,8 @@ import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -25,6 +27,13 @@ public class Product extends PanacheEntityBase {
 
     @Column(name = "stock")
     private int stock;
+
+    @OneToMany(
+            mappedBy = "product",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private final List<Photo> photos = new ArrayList<>();
 
     public Product(){}
 
@@ -73,6 +82,10 @@ public class Product extends PanacheEntityBase {
 
     public void setStock(int stock) {
         this.stock = stock;
+    }
+
+    public List<Photo> getPhotos() {
+        return photos;
     }
 
     @Override
