@@ -9,7 +9,7 @@ import org.jboss.resteasy.reactive.multipart.FileUpload;
 import java.math.BigDecimal;
 import java.util.List;
 
-public record CreateProductForm(
+public record CreateProductFormData(
         @FormParam("name") @NotBlank(message = "Name must not be empty") String name,
         @FormParam("description") @NotBlank(message = "Description must not be empty") String description,
         @FormParam("photos") @NotEmpty(message = "At least 1 image must be provided") List<FileUpload> photos,

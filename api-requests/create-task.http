@@ -1,0 +1,9 @@
+### Create new task request
+POST http://localhost:8080/tasks
+Content-Type: application/json
+
+{
+  "taskName": ""
+}
+
+###

@@ -1,19 +1,14 @@
 package app.domain.products;
 
 import app.domain.employees.Employee;
-import app.domain.employees.EmployeeResource;
-import io.quarkus.qute.CheckedTemplate;
-import io.quarkus.qute.TemplateInstance;
-import io.smallrye.common.annotation.Blocking;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
-import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.resteasy.reactive.multipart.FileUpload;
 
@@ -21,14 +16,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 @Path("/products")
-@Blocking
 public class ProductResource {
     @Inject
     Validator validator;
@@ -40,28 +33,20 @@ public class ProductResource {
     String photosDir;
 
     @GET
-    public TemplateInstance findProducts() {
+    public Response findProducts() {
         List<Product> products = repository.findAll().list();
-        return Templates.list(products);
-    }
-
-    @GET
-    @Path("/new")
-    public TemplateInstance newProduct() {
-        return Templates.create().data("form", null).data("errors", Map.of());
+        return Response.ok(products).build();
     }
 
     @POST
-    @Blocking
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Transactional
-    public TemplateInstance createProduct(CreateProductForm form) throws IOException {
+    public Response createProduct(CreateProductFormData form) throws IOException {
         var violations = validator.validate(form);
         if (!violations.isEmpty()) {
             var errors = violations.stream()
                     .collect(Collectors.toMap(v -> v.getPropertyPath().toString(),
                             ConstraintViolation::getMessage));
-            return EmployeeResource.Templates.create().data("errors", errors).data("form", form);
+            return Response.status(Response.Status.BAD_REQUEST).entity(errors).build();
         }
 
         //create product
@@ -87,7 +72,7 @@ public class ProductResource {
             Files.copy(path, Paths.get(photosDir).resolve(filename), REPLACE_EXISTING);
         }
 
-        return Templates.list(Employee.listAll());
+        return Response.ok(Employee.listAll()).build();
     }
 
     private String generateUniqueFileName(String originalFileName) {
@@ -98,13 +83,6 @@ public class ProductResource {
         }
         extension = extension.replaceAll("[^a-zA-Z0-9.]", "");
         return UUID.randomUUID() + extension;
-    }
-
-    @CheckedTemplate(requireTypeSafeExpressions = false)
-    public static class Templates {
-        public static native TemplateInstance list(List<Product> products);
-
-        public static native TemplateInstance create();
     }
 
 }

@@ -2,21 +2,15 @@ package app.domain.employees;
 
 import app.domain.users.User;
 import app.domain.users.UserRepository;
-import io.quarkus.qute.CheckedTemplate;
-import io.quarkus.qute.TemplateInstance;
-import io.smallrye.common.annotation.Blocking;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
-import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
-import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Path("/employees")
@@ -25,34 +19,25 @@ public class EmployeeResource {
     Validator validator;
 
     @Inject
-    private EmployeeRepository employeeRepository;
+    EmployeeRepository employeeRepository;
 
     @Inject
-    private UserRepository userRepository;
+    UserRepository userRepository;
 
     @GET
-    @Path("/create")
-    public TemplateInstance newEmployee() {
-        return Templates.create().data("form", null).data("errors", Map.of());
-    }
-
-    @GET
-    @Blocking
-    public TemplateInstance list() {
-        return Templates.list(Employee.listAll());
+    public Response getAllEmployees() {
+        return Response.ok(Employee.listAll()).build();
     }
 
     @POST
-    @Blocking
-    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Transactional
-    public TemplateInstance createEmployee(CreateEmployeeForm form) {
+    public Response createEmployee(CreateEmployeeForm form) {
         var violations = validator.validate(form);
         if (!violations.isEmpty()) {
             var errors = violations.stream()
                     .collect(Collectors.toMap(v -> v.getPropertyPath().toString(),
-                                    ConstraintViolation::getMessage));
-            return Templates.create().data("errors", errors).data("form", form);
+                            ConstraintViolation::getMessage));
+            return Response.status(Response.Status.BAD_REQUEST).entity(errors).build();
         }
 
         //create user and save in database
@@ -69,13 +54,7 @@ public class EmployeeResource {
         employee.setPhoneNumber(form.phone());
         employeeRepository.persist(employee);
 
-        return Templates.list(Employee.listAll());
-    }
-
-    @CheckedTemplate(requireTypeSafeExpressions = false)
-    public static class Templates {
-        public static native TemplateInstance list(List<Employee> employees);
-        public static native TemplateInstance create();
+        return Response.ok(Employee.listAll()).build();
     }
 
 }
