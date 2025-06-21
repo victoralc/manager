@@ -2,6 +2,7 @@ package app.domain.customers;
 
 import app.domain.customers.model.Customer;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -24,6 +25,7 @@ public class CustomerResource {
     }
 
     @POST
+    @Transactional
     public Response create(@NotNull CreateCustomer request) {
         Customer customer = new Customer();
         customer.setName(request.name());

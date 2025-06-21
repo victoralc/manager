@@ -3,7 +3,6 @@ package app.domain.tasks;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -50,9 +49,9 @@ public class TaskResource {
         return Response.ok().build();
     }
 
-    @POST
+    @DELETE
     @Transactional
-    @Path("/delete/{id}")
+    @Path("/{id}")
     public Response delete(@PathParam("id") Long id) {
         taskRepository.deleteById(id);
         return Response.ok().build();
