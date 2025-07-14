@@ -10,6 +10,7 @@ import jakarta.ws.rs.core.Response;
 
 import java.util.List;
 
+
 @Path("/customers")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -34,5 +35,13 @@ public class CustomerResource {
         customer.setAddress(request.address());
         customerRepository.persist(customer);
         return Response.ok(customer).build();
+    }
+
+    @DELETE
+    @Transactional
+    @Path("/{customerId}")
+    public Response delete(@NotNull @PathParam("customerId") Long customerId) {
+        customerRepository.deleteById(customerId);
+        return Response.noContent().build();
     }
 }

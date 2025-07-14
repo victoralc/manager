@@ -27,16 +27,9 @@ public class Order {
     @Column(name = "status")
     private String status;
 
-    public Order() {
-    }
-
-    public Order(Long id, Customer customer, LocalDate orderDate, BigDecimal totalAmount, String status) {
-        this.id = id;
-        this.customer = customer;
-        this.orderDate = orderDate;
-        this.totalAmount = totalAmount;
-        this.status = status;
-    }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_delivery_id")
+    private Delivery delivery;
 
     public Long getId() {
         return id;
@@ -78,4 +71,7 @@ public class Order {
         this.status = status;
     }
 
+    public Delivery getDelivery() {
+        return delivery;
+    }
 }
