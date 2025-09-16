@@ -34,7 +34,15 @@ public class ProductResource {
 
     @GET
     public Response findProducts() {
-        List<Product> products = repository.findAll().list();
+        List<ProductData> products = repository
+                .findAll()
+                .list()
+                .stream()
+                .map(p -> new ProductData(
+                        p.getId(), p.getName(),
+                        p.getDescription(), p.getPrice(),
+                        p.getStock())
+                ).toList();
         return Response.ok(products).build();
     }
 

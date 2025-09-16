@@ -1,28 +1,36 @@
 package app.domain.customers;
 
 import app.domain.customers.model.Customer;
+import io.quarkus.qute.CheckedTemplate;
+import io.quarkus.qute.Template;
+import io.quarkus.qute.TemplateInstance;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.jboss.resteasy.reactive.RestQuery;
 
 import java.util.List;
 
 
 @Path("/customers")
-@Consumes(MediaType.APPLICATION_JSON)
-@Produces(MediaType.APPLICATION_JSON)
 public class CustomerResource {
 
     @Inject
     CustomerRepository customerRepository;
 
+    @CheckedTemplate
+    public static class Templates {
+        public static native TemplateInstance customers(List<Customer> customers);
+    }
+
     @GET
-    public Response renderCustomersTemplate() {
+    @Produces(MediaType.TEXT_HTML)
+    public TemplateInstance renderCustomersTemplate() {
         List<Customer> customerList = customerRepository.listAll();
-        return Response.ok(customerList).build();
+        return Templates.customers(customerList);
     }
 
     @POST

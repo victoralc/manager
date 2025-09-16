@@ -4,9 +4,9 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public record CreateOrderData(
-        Long customerId,
+        Long userId,
         List<OrderItemData> items,
         BigDecimal totalAmount,
-        String paymentMethod,
+        PaymentData payment,
         DeliveryData delivery) {
 }
