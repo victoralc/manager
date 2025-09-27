@@ -1,25 +1,19 @@
 package app.domain.products;
 
-import app.domain.employees.Employee;
+import io.quarkus.qute.CheckedTemplate;
+import io.quarkus.qute.TemplateInstance;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.jboss.resteasy.reactive.multipart.FileUpload;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 @Path("/products")
 public class ProductResource {
@@ -33,7 +27,8 @@ public class ProductResource {
     String photosDir;
 
     @GET
-    public Response findProducts() {
+    @Produces(MediaType.TEXT_HTML)
+    public TemplateInstance products() {
         List<ProductData> products = repository
                 .findAll()
                 .list()
@@ -43,18 +38,31 @@ public class ProductResource {
                         p.getDescription(), p.getPrice(),
                         p.getStock())
                 ).toList();
-        return Response.ok(products).build();
+        return Templates.products(products);
+    }
+
+    @GET()
+    @Path("/new")
+    @Produces(MediaType.TEXT_HTML)
+    public TemplateInstance newProduct() {
+        return Templates.newProduct(CreateProductFormData.newProductFormData())
+                .data("success", null)
+                .data("error", null);
     }
 
     @POST
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces(MediaType.TEXT_HTML)
     @Transactional
-    public Response createProduct(CreateProductFormData form) throws IOException {
+    public TemplateInstance createProduct(CreateProductFormData form) throws IOException {
         var violations = validator.validate(form);
         if (!violations.isEmpty()) {
             var errors = violations.stream()
                     .collect(Collectors.toMap(v -> v.getPropertyPath().toString(),
                             ConstraintViolation::getMessage));
-            return Response.status(Response.Status.BAD_REQUEST).entity(errors).build();
+            return Templates.newProduct(form)
+                    .data("success", null)
+                    .data("error", errors.values());
         }
 
         //create product
@@ -62,25 +70,27 @@ public class ProductResource {
         product.setName(form.name());
         product.setDescription(form.description());
         product.setPrice(form.price());
-        product.setStock(form.inStock());
+        product.setStock(form.stock());
         repository.persist(product);
 
-        for (FileUpload file : form.photos()) {
-            //persist photo data in database
-            var photo = new Photo();
-            var filename = generateUniqueFileName(file.fileName());
-            photo.setName(filename);
-            photo.setSize(file.size());
-            photo.setUrl(photosDir.concat("/").concat(filename));
-            photo.setProduct(product);
-            repository.savePhoto(photo);
+//        for (FileUpload file : form.photos()) {
+//            //persist photo data in database
+//            var photo = new Photo();
+//            var filename = generateUniqueFileName(file.fileName());
+//            photo.setName(filename);
+//            photo.setSize(file.size());
+//            photo.setUrl(photosDir.concat("/").concat(filename));
+//            photo.setProduct(product);
+//            repository.savePhoto(photo);
+//
+//            //copy file in filesystem
+//            var path = file.uploadedFile();
+//            Files.copy(path, Paths.get(photosDir).resolve(filename), REPLACE_EXISTING);
+//        }
 
-            //copy file in filesystem
-            var path = file.uploadedFile();
-            Files.copy(path, Paths.get(photosDir).resolve(filename), REPLACE_EXISTING);
-        }
-
-        return Response.ok(Employee.listAll()).build();
+        return Templates.productForm(CreateProductFormData.newProductFormData())
+                .data("error", null)
+                .data("success", "Product created");
     }
 
     private String generateUniqueFileName(String originalFileName) {
@@ -91,6 +101,13 @@ public class ProductResource {
         }
         extension = extension.replaceAll("[^a-zA-Z0-9.]", "");
         return UUID.randomUUID() + extension;
+    }
+
+    @CheckedTemplate(requireTypeSafeExpressions = false)
+    public static class Templates {
+        public static native TemplateInstance products(List<ProductData> products);
+        public static native TemplateInstance newProduct(CreateProductFormData product);
+        public static native TemplateInstance productForm(CreateProductFormData product);
     }
 
 }

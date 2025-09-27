@@ -1,0 +1,32 @@
+<div id="form-container" class="container">
+    {#if error}
+    <div class="alert-message alert alert-danger">
+        {error}
+    </div>
+    {/if}
+
+    {#if success}
+    <div class="alert-message alert alert-success">
+        {success}
+    </div>
+    {/if}
+    <form method="post" hx-post="/products" hx-target="#form-container" hx-swap="outerHTML" >
+        <div class="mb-3">
+            <label for="name" class="form-label">Name</label>
+            <input type="text" class="form-control" id="name" name="name" value="{product.name}">
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <input type="text" class="form-control" id="description" name="description" value="{product.description}">
+        </div>
+        <div class="mb-3">
+            <label for="price" class="form-label">Price</label>
+            <input type="number" class="form-control" id="price" name="price" value="{product.price}">
+        </div>
+        <div class="mb-3">
+            <label for="stock" class="form-label">Quantity in stock</label>
+            <input type="number" class="form-control" id="stock" name="stock" value="{product.stock}">
+        </div>
+        <button type="submit" class="btn btn-primary">Create</button>
+    </form>
+</div>

@@ -12,7 +12,12 @@ import java.util.List;
 public record CreateProductFormData(
         @FormParam("name") @NotBlank(message = "Name must not be empty") String name,
         @FormParam("description") @NotBlank(message = "Description must not be empty") String description,
-        @FormParam("photos") @NotEmpty(message = "At least 1 image must be provided") List<FileUpload> photos,
-        @FormParam("inStock") int inStock,
+        //@FormParam("photos") @NotEmpty(message = "At least 1 image must be provided") List<FileUpload> photos,
+        @FormParam("stock") Integer stock,
         @FormParam("price") @NotNull BigDecimal price) {
+
+    public static CreateProductFormData newProductFormData(){
+        return new CreateProductFormData("", "", null, null);
+    }
+
 }
